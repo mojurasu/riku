@@ -2,12 +2,12 @@ use str
 version = '0.1.0'
 
 fn -parse-bool [val]{
-    if (eq $val "TRUE") {
+    if (eq (str:to-lower $val) "true") {
         put $true
-    } elif (eq $val "FALSE") {
+    } elif (eq (str:to-lower $val) "true") {
         put $false
     } else {
-        put $nil
+        put $val
     }
 }
 
