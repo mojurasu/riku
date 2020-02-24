@@ -67,6 +67,7 @@ Parameters:
 |       Name      | Default | Description
 | --------------- | ------- | -----------
 | url             |    -    | URL for the request
+| allow_redirects |  false  | Follow 3xx redirects
 | @args           |    -    | Arguments that should be passed to riku:request
 
 ### `riku:get`

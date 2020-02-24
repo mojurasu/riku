@@ -106,8 +106,8 @@ fn request [method url
     e:curl $url $@curl_args
 }
 
-fn head [url @args]{
-    request "HEAD" $url $@args
+fn head [url &allow_redirects=$false @args]{
+    request "HEAD" $url &allow_redirects=$allow_redirects $@args
 }
 
 fn get [url &params=$nil @args]{
