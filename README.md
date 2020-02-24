@@ -1,6 +1,8 @@
 # riku
 curl wrapper written in elvish with the API of Pythons `requests`
 
+**Note:** Currently additional arguments can't be passed to the convenience methods since this needs support from elvish itself: [Map explosion and rest options #584](https://github.com/elves/elvish/issues/584)
+
 ## Table of Contents
 - [Examples](#examples)
   - [Simple GET request](#simple-get-request)
