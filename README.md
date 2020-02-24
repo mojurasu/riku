@@ -23,35 +23,44 @@ curl wrapper written in elvish with the API of Pythons `requests`
 ```
 ~> use github.com/mojurasu/riku/riku
 ~> riku:get "https://httpbin.org/get"
-{
-  "args": {},
-  "headers": {
-    "Accept": "*/*",
-    "Host": "httpbin.org",
-    "User-Agent": "curl/7.68.0",
-    "X-Amzn-Trace-Id": "Root=1-5e530d95-1164af08170e9b34bad158f4"
-  },
-  "origin": "77.180.103.81",
-  "url": "https://httpbin.org/get"
-}
+[
+ &content = "{\n  \"args\": {}, \n  \"headers\": {\n    \"Accept\": \"*/*\", \n    \"Host\": \"httpbin.org\", \n    \"User-Agent\": \"riku/0.1.0\", \n    \"X-Amzn-Trace-Id\": \"Root=1-5e5460e4-c9e58d87d61479be5c539cd8\"\n  }, \n  \"origin\": \"77.189.17.177\", \n  \"url\": \"https://httpbin.org/get\"\n}"
+ &headers = [
+   [
+    &date = 'Mon, 24 Feb 2020 23:48:52 GMT'
+    &access-control-allow-origin = '*'
+    &access-control-allow-credentials = true
+    &content-length = 254
+    &content-type = application/json
+    &server = gunicorn/19.9.0
+   ]
+  ]
+ &status_code = 200
+ &elapsed = 0.390181
+ &cookies = []
+ &url = https://httpbin.org/get
+ &ok = $true
+]
 ```
 
 ### GET request with parameters
 ```
-~> riku:get "https://httpbin.org/get" &params=[&arg1=value]
-{
-  "args": {
-    "arg1": "value"
-  },
-  "headers": {
-    "Accept": "*/*",
-    "Host": "httpbin.org",
-    "User-Agent": "curl/7.68.0",
-    "X-Amzn-Trace-Id": "Root=1-5e530deb-87eecc1d0280a1f83f36ae86"
-  },
-  "origin": "77.180.103.81",
-  "url": "https://httpbin.org/get?arg1=value"
-}
+[
+ &content = "{\n  \"args\": {\n    \"arg1\": \"value\"\n  }, \n  \"headers\": {\n    \"Accept\": \"*/*\", \n    \"Host\": \"httpbin.org\", \n    \"User-Agent\": \"riku/0.1.0\", \n    \"X-Amzn-Trace-Id\": \"Root=1-5e5461d3-71defefab809710729819cbe\"\n  }, \n  \"origin\": \"77.189.17.177\", \n  \"url\": \"https://httpbin.org/get?arg1=value\"\n}"
+ &headers = [
+   &date = 'Mon, 24 Feb 2020 23:52:51 GMT'
+   &access-control-allow-origin = '*'
+   &access-control-allow-credentials = true
+   &content-length = 288
+   &content-type = application/json
+   &server = gunicorn/19.9.0
+  ]
+ &status_code = 200
+ &elapsed = 0.388110
+ &cookies = []
+ &url = 'https://httpbin.org/get?arg1=value'
+ &ok = $true
+]
 ```
 
 ## Tests
