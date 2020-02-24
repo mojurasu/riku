@@ -7,13 +7,13 @@ curl wrapper written in elvish with the API of Pythons `requests`
   - [GET request with parameters](#get-request-with-parameters)
 - [Tests](#tests)
 - [API](#api)
-  - [riku:request](rikurequest)
-  - [riku:head](rikuhead)
-  - [riku:get](rikuget)
-  - [riku:post](rikupost)
-  - [riku:put](rikuput)
-  - [riku:patch](rikupatch)
-  - [riku:delete](rikudelete)
+  - [riku:request](#rikurequest)
+  - [riku:head](#rikuhead)
+  - [riku:get](#rikuget)
+  - [riku:post](#rikupost)
+  - [riku:put](#rikuput)
+  - [riku:patch](#rikupatch)
+  - [riku:delete](#rikudelete)
 
 ## Examples
 
