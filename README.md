@@ -1,9 +1,23 @@
 # riku
 curl wrapper written in elvish with the API of Pythons `requests`
 
+## Table of Contents
+- [Examples](#examples)
+  - [Simple GET request](#simple-get-request)
+  - [GET request with parameters](#get-request-with-parameters)
+- [Tests](#tests)
+- [API](#api)
+  - [riku:request](rikurequest)
+  - [riku:head](rikuhead)
+  - [riku:get](rikuget)
+  - [riku:post](rikupost)
+  - [riku:put](rikuput)
+  - [riku:patch](rikupatch)
+  - [riku:delete](rikudelete)
+
 ## Examples
 
-### Simple get request
+### Simple GET request
 ```
 ~> use github.com/mojurasu/riku/riku
 ~> riku:get "https://httpbin.org/get"
@@ -20,7 +34,7 @@ curl wrapper written in elvish with the API of Pythons `requests`
 }
 ```
 
-### Get request with parameters
+### GET request with parameters
 ```
 ~> riku:get "https://httpbin.org/get" &params=[&arg1=value]
 {
