@@ -1,3 +1,5 @@
+version = "0.1.0"
+
 fn request [method url
             &params=$nil
             &data=$nil
@@ -13,7 +15,7 @@ fn request [method url
     # -s so no progress meter is shown
     # -S to still show error messages
     # -q to ignore any config files which might cause unexpected behaviour
-    curl_args = ["-sSq"]
+    curl_args = ["-sSq" "--user-agent" "riku/"$version]
     if (eq $method "GET") {
         curl_args = [$@curl_args "-G"]
     } elif (eq $method "HEAD") {
