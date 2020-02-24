@@ -38,6 +38,16 @@ curl wrapper written in elvish with the API of Pythons `requests`
 }
 ```
 
+## Tests
+riku comes with tests using zzambonis test module. The tests use httpbin.org to test different parameters, headers, etc.
+
+To run them do the following:
+
+```
+use github.com/mojurasu/riku/tests riku_tests
+riku_tests:run
+```
+
 ## API
 
 ### `riku:request`

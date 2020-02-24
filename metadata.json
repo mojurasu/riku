@@ -1,4 +1,5 @@
 {
     "description": "curl wrapper",
     "maintainers": ["Simon Schürrle <admin@sitischu.com>"],
+    "dependencies": ["github.com/zzamboni/elvish-modules"]
 }
