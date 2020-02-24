@@ -36,7 +36,7 @@ fn request [method url
         } elif (eq (kind-of $data) "list") {
             curl_args = [$@curl_args '-d' $data]
         } elif (eq (kind-of $data) "map") {
-            curl_args = [$@curl_args '--data-raw' (put $data | to-json)]
+            curl_args = [$@curl_args '-H' 'Content-Type: application/json' '--data-raw' (put $data | to-json)]
         }
 
     }
