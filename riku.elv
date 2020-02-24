@@ -1,4 +1,48 @@
-version = "0.1.0"
+use str
+version = '0.1.0'
+
+fn -parse-bool [val]{
+    if (eq $val "TRUE") {
+        put $true
+    } elif (eq $val "FALSE") {
+        put $false
+    } else {
+        put $nil
+    }
+}
+
+# See https://curl.haxx.se/docs/http-cookies.html for more detail
+fn -parse-cookies [lines]{
+    for l $lines {
+        if (and (not (has-prefix $l '#')) (not-eq (count $l) 0))  {
+            domain subdomains path secure expires name value = (splits "\t" $l)
+            put [
+                &domain=$domain
+                &subdomains=(-parse-bool $subdomains)
+                &path=$path
+                &secure=(-parse-bool $secure)
+                &expires=$expires
+                &name=$name
+                &value=$value
+            ]
+        }
+
+    }
+
+}
+
+fn -parse-headers [lines]{
+    headers = [&]
+    for l $lines {
+        l = (replaces "\r" '' $l)
+        if (and (not (has-prefix $l "HTTP")) (not-eq (count $l) 0)) {
+            key @value = (splits ':' $l)
+            value = (str:trim-space (joins ':' $value))
+            headers[$key] = $value
+        }
+    }
+    put $headers
+}
 
 fn request [method url
             &params=$nil
@@ -12,10 +56,19 @@ fn request [method url
             &proxies=$nil
             &verify=$true
             &cert=$nil]{
-    # -s so no progress meter is shown
-    # -S to still show error messages
-    # -q to ignore any config files which might cause unexpected behaviour
-    curl_args = ["-sSq" "--user-agent" "riku/"$version]
+    session-path = (mktemp -d riku-XXXXXXXXXXXXXXXXXXXX --tmpdir)
+    output-file = $session-path"/"output
+    headers-file = $session-path"/"headers
+    cookies-file = $session-path"/"cookies
+    # --disable Disables loading of a .curlrc
+    curl_args = ['--silent' '--show-error' '--disable'
+                 '--user-agent' 'riku/'$version
+                 '--output' $output-file
+                 '--dump-header' $headers-file
+                 '--cookie-jar' $cookies-file
+                 '-w' '%{http_code}\n%{time_total}\n%{url_effective}\n'
+    ]
+
     if (eq $method "GET") {
         curl_args = [$@curl_args "-G"]
     } elif (eq $method "HEAD") {
@@ -106,7 +159,35 @@ fn request [method url
         curl_args = [$@curl_args "--cert" $cert_arg]
     }
 
-    e:curl $url $@curl_args
+    status_code total_time effective_url = (e:curl $url $@curl_args)
+    status_ok = $false
+    if (< $status_code 400) {
+        status_ok = $true
+    }
+
+    f = (fopen $output-file)
+    content = (joins "\n" [(cat < $f)])
+    fclose $f
+
+    f = (fopen $headers-file)
+    headers = [(-parse-headers [(cat < $f)])]
+    fclose $f
+
+    f = (fopen $cookies-file)
+    cookies = [(-parse-cookies [(cat < $f)])]
+    fclose $f
+
+    response = [
+        &content=$content
+        &cookies=$cookies
+        &elapsed=$total_time
+        &headers=$headers
+        &ok=$status_ok
+        &status_code=$status_code
+        &url=$effective_url
+    ]
+    put $response
+    e:rm -r $session-path
 }
 
 fn head [url &allow_redirects=$false @args]{
