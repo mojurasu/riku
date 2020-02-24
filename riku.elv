@@ -170,7 +170,7 @@ fn request [method url
     fclose $f
 
     f = (fopen $headers-file)
-    headers = [(-parse-headers [(cat < $f)])]
+    headers = (-parse-headers [(cat < $f)])
     fclose $f
 
     f = (fopen $cookies-file)
