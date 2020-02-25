@@ -36,6 +36,12 @@ fn test-500 {
     put (test:check { eq $res[ok] $false } "HTTP 500 &ok")
 }
 
+fn test-cookie {
+    res = (riku:get "https://httpbin.org/cookies/set/keks/lecker")
+    cookie = $res[cookies][0]
+    put (test:check { eq $cookie[name] "keks" } "Cookie Name")
+    put (test:check { eq $cookie[value] "lecker" } "Cookie Value")
+}
 
 # Need a way to have **kwargs functionality first
 fn test-headers {
@@ -50,4 +56,5 @@ tests = (test:set get [
         (test-300)
         (test-400)
         (test-500)
+        (test-cookie)
     ])
