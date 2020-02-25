@@ -2,13 +2,13 @@ use github.com/zzamboni/elvish-modules/test
 use ../riku
 
 fn test-simple {
-    res = (riku:get "https://httpbin.org/get" | from-json)
+    res = (echo (riku:get "https://httpbin.org/get")[content] | from-json)
     user_agent = $res[headers][User-Agent]
     put (test:check { eq $user_agent "riku/"$riku:version } "Simple GET request")
 }
 
 fn test-params {
-    res = (riku:get "https://httpbin.org/get" &params=[&key=value] | from-json)
+    res = (echo (riku:get "https://httpbin.org/get" &params=[&key=value])[content] | from-json)
     put (test:check { eq $res[args] [&key=value] } "GET request with parameters")
 }
 

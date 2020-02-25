@@ -2,7 +2,7 @@ use github.com/zzamboni/elvish-modules/test
 use ../riku
 
 fn test-simple {
-    res = (riku:delete "https://httpbin.org/delete" | from-json)
+    res = (echo (riku:delete "https://httpbin.org/delete")[content] | from-json)
     user_agent = $res[headers][User-Agent]
     put (test:check { eq $user_agent "riku/"$riku:version } "Simple DELETE request")
 }
