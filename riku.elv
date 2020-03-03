@@ -190,26 +190,28 @@ fn request [method url
     e:rm -r $session-path
 }
 
-fn head [url &allow_redirects=$false @args]{
-    request "HEAD" $url &allow_redirects=$allow_redirects $@args
+# All convenience functions have the full siganture until https://b.elv.sh/584 is implemented
+
+fn head [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+    request "HEAD" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn get [url &params=$nil @args]{
-    request "GET" $url &params=$params $@args
+fn get [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+    request "GET" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn post [url &data=$nil @args]{
-    request "POST" $url &data=$data $@args
+fn post [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+    request "POST" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn put [url &data=$nil @args]{
-    request "PUT" $url &data=$data $@args
+fn put [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+    request "PUT" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn patch [url &data=$nil @args]{
-    request "PATCH" $url &data=$data $@args
+fn patch [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+    request "PATCH" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn delete [url @args]{
-    request "DELETE" $url $@args
+fn delete [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+    request "DELETE" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
