@@ -1,7 +1,7 @@
 use str
-version = '0.1.0'
+fn version { put '0.2.0' }
 
-fn -parse-bool [val]{
+fn -parse-bool {|val|
     if (eq (str:to-lower $val) "true") {
         put $true
     } elif (eq (str:to-lower $val) "true") {
@@ -12,10 +12,10 @@ fn -parse-bool [val]{
 }
 
 # See https://curl.haxx.se/docs/http-cookies.html for more detail
-fn -parse-cookies [lines]{
+fn -parse-cookies {|lines|
     for l $lines {
         if (and (not (has-prefix $l '#')) (not-eq (count $l) 0))  {
-            domain subdomains path secure expires name value = (splits "\t" $l)
+            var domain subdomains path secure expires name value = (splits "\t" $l)
             put [
                 &domain=$domain
                 &subdomains=(-parse-bool $subdomains)
@@ -31,12 +31,12 @@ fn -parse-cookies [lines]{
 
 }
 
-fn -parse-headers [lines]{
-    headers = [&]
+fn -parse-headers {|lines|
+    var headers = [&]
     for l $lines {
         l = (replaces "\r" '' $l)
         if (and (not (has-prefix $l "HTTP")) (not-eq (count $l) 0)) {
-            key @value = (splits ':' $l)
+            var key @value = (splits ':' $l)
             value = (str:trim-space (joins ':' $value))
             headers[$key] = $value
         }
@@ -44,7 +44,7 @@ fn -parse-headers [lines]{
     put $headers
 }
 
-fn request [method url
+fn request {|method url
             &params=$nil
             &data=$nil
             &headers=$nil
@@ -55,13 +55,13 @@ fn request [method url
             &allow_redirects=$true
             &proxies=$nil
             &verify=$true
-            &cert=$nil]{
-    session-path = (mktemp -d riku-XXXXXXXXXXXXXXXXXXXX --tmpdir)
-    output-file = $session-path"/"output
-    headers-file = $session-path"/"headers
-    cookies-file = $session-path"/"cookies
+            &cert=$nil|
+    var session-path = (mktemp -d riku-XXXXXXXXXXXXXXXXXXXX --tmpdir)
+    var output-file = $session-path"/"output
+    var headers-file = $session-path"/"headers
+    var cookies-file = $session-path"/"cookies
     # --disable Disables loading of a .curlrc
-    curl_args = ['--silent' '--show-error' '--disable'
+    var curl_args = ['--silent' '--show-error' '--disable'
                  '--user-agent' 'riku/'$version
                  '--output' $output-file
                  '--dump-header' $headers-file
@@ -70,43 +70,43 @@ fn request [method url
     ]
 
     if (eq $method "GET") {
-        curl_args = [$@curl_args "-G"]
+        set curl_args = [$@curl_args "-G"]
     } elif (eq $method "HEAD") {
-        curl_args = [$@curl_args "-I"]
+        set curl_args = [$@curl_args "-I"]
     } else {
-        curl_args = [$@curl_args "-X" $method]
+        set curl_args = [$@curl_args "-X" $method]
     }
 
     if (not-eq $params $nil) {
-        keys $params | each [k]{
-            curl_args = [$@curl_args '-d' $k'='$params[$k]]
+        keys $params | each {|k|
+            set curl_args = [$@curl_args '-d' $k'='$params[$k]]
         }
     }
 
     if (not-eq $data $nil) {
         if (eq (kind-of $data) "string") {
-            curl_args = [$@curl_args '-d' $data]
+            set curl_args = [$@curl_args '-d' $data]
         } elif (eq (kind-of $data) "list") {
-            curl_args = [$@curl_args '-d' $data]
+            set curl_args = [$@curl_args '-d' $data]
         } elif (eq (kind-of $data) "map") {
-            curl_args = [$@curl_args '-H' 'Content-Type: application/json'
+            set curl_args = [$@curl_args '-H' 'Content-Type: application/json'
                                      '--data-raw' (put $data | to-json)]
         }
 
     }
 
     if (not-eq $headers $nil) {
-        keys $headers | each [k]{
-            curl_args = [$@curl_args '-H' $k': '$headers[$k]]
+        keys $headers | each {|k|
+            set curl_args = [$@curl_args '-H' $k': '$headers[$k]]
         }
     }
 
     if (not-eq $cookies $nil) {
-        cookie_string = ""
-        keys $cookies | each [k]{
-            cookie_string = $cookie_string$k'='$cookies[$k]";"
+        var cookie_string = ""
+        keys $cookies | each {|k|
+            set cookie_string = $cookie_string$k'='$cookies[$k]";"
         }
-        curl_args = [$@curl_args '--cookie' $cookie_string]
+        set curl_args = [$@curl_args '--cookie' $cookie_string]
     }
 
     if (not-eq $files $nil) {
@@ -119,19 +119,19 @@ fn request [method url
 
     if (not-eq $timeout $nil) {
         if (eq (kind-of $timeout) "string") {
-            curl_args = [$@curl_args "--max-time" $timeout]
+            set curl_args = [$@curl_args "--max-time" $timeout]
         } elif (eq (kind-of $timeout) "list") {
-            connect_timeout read_timeout = $@timeout
-            curl_args = [$@curl_args "--connect-timeout" $connect_timeout]
+            var connect_timeout read_timeout = $@timeout
+            set curl_args = [$@curl_args "--connect-timeout" $connect_timeout]
             # add connect and read timeout together since --max-time is
             # the maximum time allowed for the entire command
-            curl_args = [$@curl_args "--max-time" (+ $connect_timeout $read_timeout)]
+            set curl_args = [$@curl_args "--max-time" (+ $connect_timeout $read_timeout)]
 
         }
     }
 
     if (eq $allow_redirects $true) {
-        curl_args = [$@curl_args "--location"]
+        set curl_args = [$@curl_args "--location"]
     }
 
     if (not-eq $proxies $nil) {
@@ -139,45 +139,45 @@ fn request [method url
     }
 
     if (eq $verify $false) {
-        curl_args = [$@curl_args "--insecure"]
+        set curl_args = [$@curl_args "--insecure"]
     } elif (eq (kind-of $verify "string")) {
         if ?(test -d $verify) {
-            curl_args = [$@curl_args "--capath" $verify]
+            set curl_args = [$@curl_args "--capath" $verify]
         } else {
-            curl_args = [$@curl_args "--cacert" $verify]
+            set curl_args = [$@curl_args "--cacert" $verify]
         }
     }
 
     if (not-eq $cert $nil) {
-        cert_arg = ""
+        var cert_arg = ""
         if (eq (kind-of $cert) "string") {
-            cert_arg = $cert
+            set cert_arg = $cert
         } elif (eq (kind-of $cert) "list") {
-            certificate password = $@cert
-            cert_arg = $certificate":"$password
+            var certificate password = $@cert
+            set cert_arg = $certificate":"$password
         }
-        curl_args = [$@curl_args "--cert" $cert_arg]
+        set curl_args = [$@curl_args "--cert" $cert_arg]
     }
 
-    status_code total_time effective_url = (e:curl $url $@curl_args)
-    status_ok = $false
+    var status_code total_time effective_url = (e:curl $url $@curl_args)
+    var status_ok = $false
     if (< $status_code 400) {
-        status_ok = $true
+        set status_ok = $true
     }
 
-    f = (fopen $output-file)
-    content = (joins "\n" [(cat < $f)])
+    var f = (fopen $output-file)
+    var content = (joins "\n" [(cat < $f)])
     fclose $f
 
-    f = (fopen $headers-file)
-    headers = (-parse-headers [(cat < $f)])
+    var f = (fopen $headers-file)
+    var headers = (-parse-headers [(cat < $f)])
     fclose $f
 
-    f = (fopen $cookies-file)
-    cookies = [(-parse-cookies [(cat < $f)])]
+    var f = (fopen $cookies-file)
+    var cookies = [(-parse-cookies [(cat < $f)])]
     fclose $f
 
-    response = [
+    var response = [
         &content=$content
         &cookies=$cookies
         &elapsed=$total_time
@@ -192,26 +192,26 @@ fn request [method url
 
 # All convenience functions have the full siganture until https://b.elv.sh/584 is implemented
 
-fn head [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+fn head {|url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil|
     request "HEAD" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn get [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+fn get {|url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil|
     request "GET" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn post [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+fn post {|url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil|
     request "POST" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn put [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+fn put {|url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil|
     request "PUT" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn patch [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+fn patch {|url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil|
     request "PATCH" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
 
-fn delete [url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil]{
+fn delete {|url &params=$nil &data=$nil &headers=$nil &cookies=$nil &files=$nil &auth=$nil &timeout=$nil &allow_redirects=$true &proxies=$nil &verify=$true &cert=$nil|
     request "DELETE" $url &params=$params &data=$data &headers=$headers &cookies=$cookies &files=$files &auth=$auth &timeout=$timeout &allow_redirects=$allow_redirects &proxies=$proxies &verify=$verify &cert=$cert
 }
