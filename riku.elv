@@ -1,4 +1,5 @@
 use str
+use file
 fn version { put '0.2.0' }
 
 fn -parse-bool {|val|
@@ -14,8 +15,8 @@ fn -parse-bool {|val|
 # See https://curl.haxx.se/docs/http-cookies.html for more detail
 fn -parse-cookies {|lines|
     for l $lines {
-        if (and (not (has-prefix $l '#')) (not-eq (count $l) 0))  {
-            var domain subdomains path secure expires name value = (splits "\t" $l)
+        if (and (not (str:has-prefix $l '#')) (not-eq (count $l) 0))  {
+            var domain subdomains path secure expires name value = (str:split "\t" $l)
             put [
                 &domain=$domain
                 &subdomains=(-parse-bool $subdomains)
@@ -34,10 +35,10 @@ fn -parse-cookies {|lines|
 fn -parse-headers {|lines|
     var headers = [&]
     for l $lines {
-        l = (replaces "\r" '' $l)
-        if (and (not (has-prefix $l "HTTP")) (not-eq (count $l) 0)) {
-            var key @value = (splits ':' $l)
-            value = (str:trim-space (joins ':' $value))
+        var l = (str:replace "\r" '' $l)
+        if (and (not (str:has-prefix $l "HTTP")) (not-eq (count $l) 0)) {
+            var key @value = (str:split ':' $l)
+            var value = (str:trim-space (str:join ':' $value))
             headers[$key] = $value
         }
     }
@@ -165,17 +166,17 @@ fn request {|method url
         set status_ok = $true
     }
 
-    var f = (fopen $output-file)
-    var content = (joins "\n" [(cat < $f)])
-    fclose $f
+    var f = (file:open $output-file)
+    var content = (str:join "\n" [(cat < $f)])
+    file:close $f
 
-    var f = (fopen $headers-file)
+    var f = (file:open $headers-file)
     var headers = (-parse-headers [(cat < $f)])
-    fclose $f
+    file:close $f
 
-    var f = (fopen $cookies-file)
+    var f = (file:open $cookies-file)
     var cookies = [(-parse-cookies [(cat < $f)])]
-    fclose $f
+    file:close $f
 
     var response = [
         &content=$content
