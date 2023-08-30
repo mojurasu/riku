@@ -1,6 +1,6 @@
 use str
 use file
-fn version { put '0.2.0' }
+var version = '0.2.0'
 
 fn -parse-bool {|val|
     if (eq (str:to-lower $val) "true") {
@@ -15,7 +15,7 @@ fn -parse-bool {|val|
 # See https://curl.haxx.se/docs/http-cookies.html for more detail
 fn -parse-cookies {|lines|
     for l $lines {
-        if (and (not (str:has-prefix $l '#')) (not-eq (count $l) 0))  {
+        if (and (not (str:has-prefix $l '#')) (not-eq (count $l) (num 0)))  {
             var domain subdomains path secure expires name value = (str:split "\t" $l)
             put [
                 &domain=$domain
@@ -39,7 +39,7 @@ fn -parse-headers {|lines|
         if (and (not (str:has-prefix $l "HTTP")) (not-eq (count $l) 0)) {
             var key @value = (str:split ':' $l)
             var value = (str:trim-space (str:join ':' $value))
-            headers[$key] = $value
+            set headers[$key] = $value
         }
     }
     put $headers
